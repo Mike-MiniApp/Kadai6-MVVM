@@ -11,9 +11,8 @@ import RxRelay
 import RxCocoa
 // MARK: - Inputs
 protocol ViewModelInputs {
-    var sliderObservable: Observable<Int> { get }
+    var sliderValueObservable: Observable<Float> { get }
     var judgeButtonTapObservable: Observable<Void> { get }
-
 }
 
 // MARK: - Outputs
@@ -29,12 +28,29 @@ protocol ViewModelType {
 
 class ViewModel: ViewModelInputs, ViewModelOutputs {
     // MARK: - Inputs
-    var sliderObservable: RxSwift.Observable<Int>
+    var sliderValueObservable: RxSwift.Observable<Float>
     var judgeButtonTapObservable: RxSwift.Observable<Void>
 
-    init(sliderObservable: Observable<Int>,judgeButtonTapObservable: Observable<Void>){
-        self.sliderObservable = sliderObservable
+    private var correctAnswer = Int()
+    private var sliderValue = Float()
+    private let disposeBag = DisposeBag()
+
+    init(sliderValueObservable: Observable<Float>,judgeButtonTapObservable: Observable<Void>,correctAnswer: Int) {
+        self.sliderValueObservable = sliderValueObservable
         self.judgeButtonTapObservable = judgeButtonTapObservable
+        self.correctAnswer = correctAnswer
+        setupBindings()
+    }
+
+    private func setupBindings() {
+        sliderValueObservable.subscribe (onNext: { value in
+            print("value",value)
+            self.sliderValue = value
+        }).disposed(by: disposeBag)
+
+        judgeButtonTapObservable.subscribe (onNext: {
+            print("tap")
+        }).disposed(by: disposeBag)
     }
 }
 

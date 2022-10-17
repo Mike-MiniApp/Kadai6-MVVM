@@ -16,9 +16,36 @@ class ViewController: UIViewController {
     @IBOutlet private weak var slider: UISlider!
     @IBOutlet private weak var judgeButton: UIButton!
 
-    private lazy var viewModel = ViewModel(sliderObservable: slider.rx.value.map{$0 ?? 0}.asObservable(), judgeButtonTapObservable: judgeButton.rx.tap.asObservable())
+    private var correctAnswer: Int = 0
+
+    private let disposeBag = DisposeBag()
+
+    private lazy var viewModel = ViewModel(sliderValueObservable: slider.rx.value.asObservable(), judgeButtonTapObservable: judgeButton.rx.tap.asObservable(),correctAnswer: correctAnswer)
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        setInit()
+        setupBindings()
+    }
+
+    private func setupBindings() {
+
+    }
+
+    private func setInit() {
+        correctAnswer = Int.random(in: 1...100)
+        answerLabel.text = String(correctAnswer)
+        slider.value = 50
+    }
+
+    private func judgeAlert(judge: String, numberSlider: Int) {
+        let title = "結果"
+        let message = "\(judge)!\nあなたの値: \(numberSlider)"
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let restart = UIAlertAction(title: "再挑戦", style: .default) { _ in
+            self.setInit()
+        }
+        alert.addAction(restart)
+        present(alert, animated: true, completion: nil)
     }
 }
