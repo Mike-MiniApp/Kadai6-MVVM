@@ -51,12 +51,11 @@ class ViewModel: ViewModelInputs, ViewModelOutputs {
 
     private func setupBindings() {
         sliderValueObservable.subscribe (onNext: { value in
-            print("sliderValue:",Int(value))
             self.sliderValue = Int(value)
         }).disposed(by: disposeBag)
 
         judgeButtonTapObservable.subscribe (onNext: {
-            if(self.sliderValue == self.correctAnswer){
+            if(self.sliderValue == self.correctAnswer) {
                 self.judgePublishSubject.onNext("当たり")
                 self.sliderValuePublishSubject.onNext(self.sliderValue)
             }else{

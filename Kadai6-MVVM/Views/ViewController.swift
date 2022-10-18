@@ -17,9 +17,12 @@ class ViewController: UIViewController {
     @IBOutlet private weak var judgeButton: UIButton!
 
     private var correctAnswer: Int = 0
+    private var value: Int = 0
+    private var judge: String = ""
 
     private let disposeBag = DisposeBag()
 
+    // MARK: - ViewModel Connect
     private lazy var viewModel = ViewModel(sliderValueObservable: slider.rx.value.asObservable(), judgeButtonTapObservable: judgeButton.rx.tap.asObservable(),correctAnswer: correctAnswer)
 
     override func viewDidLoad() {
@@ -32,11 +35,17 @@ class ViewController: UIViewController {
         let totalOutput = Observable.combineLatest(viewModel.outputs.sliderValuePublishSubject, viewModel.outputs.judgePublishSubject)
 
         totalOutput.subscribe (onNext: { value,judge in
-            self.judgeAlert(judge: judge, numberSlider: Int(value))
+            self.value = value
+            self.judge = judge
         }).disposed(by: disposeBag)
 
+        // 判定ボタンをタップした時の処理
+        viewModel.inputs.judgeButtonTapObservable.subscribe (onNext: {
+            self.judgeAlert(judge: self.judge, numberSlider: self.value)
+        }).disposed(by: disposeBag)
     }
 
+    // MARK: - Method
     private func setInit() {
         correctAnswer = Int.random(in: 1...100)
         viewModel.correctAnswer = correctAnswer
