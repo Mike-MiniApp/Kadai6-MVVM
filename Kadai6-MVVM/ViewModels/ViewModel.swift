@@ -17,7 +17,8 @@ protocol ViewModelInputs {
 
 // MARK: - Outputs
 protocol ViewModelOutputs {
-
+    var judgePublishSubject: PublishSubject<String> { get }
+    var sliderValuePublishSubject: PublishSubject<Int> { get }
 }
 
 // MARK: - Type
@@ -27,12 +28,18 @@ protocol ViewModelType {
 }
 
 class ViewModel: ViewModelInputs, ViewModelOutputs {
+
     // MARK: - Inputs
     var sliderValueObservable: RxSwift.Observable<Float>
     var judgeButtonTapObservable: RxSwift.Observable<Void>
 
-    private var correctAnswer = Int()
-    private var sliderValue = Float()
+    // MARK: - Outputs
+    var judgePublishSubject = RxSwift.PublishSubject<String>()
+    var sliderValuePublishSubject = RxSwift.PublishSubject<Int>()
+
+    var correctAnswer = Int()
+    private var sliderValue = Int()
+    private var judgeResult = String()
     private let disposeBag = DisposeBag()
 
     init(sliderValueObservable: Observable<Float>,judgeButtonTapObservable: Observable<Void>,correctAnswer: Int) {
@@ -44,12 +51,18 @@ class ViewModel: ViewModelInputs, ViewModelOutputs {
 
     private func setupBindings() {
         sliderValueObservable.subscribe (onNext: { value in
-            print("value",value)
-            self.sliderValue = value
+            print("sliderValue:",Int(value))
+            self.sliderValue = Int(value)
         }).disposed(by: disposeBag)
 
         judgeButtonTapObservable.subscribe (onNext: {
-            print("tap")
+            if(self.sliderValue == self.correctAnswer){
+                self.judgePublishSubject.onNext("当たり")
+                self.sliderValuePublishSubject.onNext(self.sliderValue)
+            }else{
+                self.judgePublishSubject.onNext("ハズレ")
+                self.sliderValuePublishSubject.onNext(self.sliderValue)
+            }
         }).disposed(by: disposeBag)
     }
 }

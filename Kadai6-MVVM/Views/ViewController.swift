@@ -29,11 +29,17 @@ class ViewController: UIViewController {
     }
 
     private func setupBindings() {
+        let totalOutput = Observable.combineLatest(viewModel.outputs.sliderValuePublishSubject, viewModel.outputs.judgePublishSubject)
+
+        totalOutput.subscribe (onNext: { value,judge in
+            self.judgeAlert(judge: judge, numberSlider: Int(value))
+        }).disposed(by: disposeBag)
 
     }
 
     private func setInit() {
         correctAnswer = Int.random(in: 1...100)
+        viewModel.correctAnswer = correctAnswer
         answerLabel.text = String(correctAnswer)
         slider.value = 50
     }
